@@ -77,16 +77,18 @@ namespace WebAPIAspNet.Services
         {
             var path = Path.Combine(Directory.GetCurrentDirectory(), configuration["ImagesDir"]!,
                 $"{size}_{name}");
+
             using var image = Image.Load(bytes);
-            image.Mutate(async imgConext =>
+            image.Mutate(imgContext =>
             {
-                imgConext.Resize(new ResizeOptions
+                imgContext.Resize(new ResizeOptions
                 {
                     Size = new Size(size, size),
                     Mode = ResizeMode.Max
                 });
-                await image.SaveAsync(path, new WebpEncoder());
             });
+
+            await image.SaveAsync(path, new WebpEncoder());
         }
     }
 }
