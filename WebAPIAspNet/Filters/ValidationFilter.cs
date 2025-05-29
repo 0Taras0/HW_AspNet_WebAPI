@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
 
-namespace WebAPIAspNet.Filters
+namespace Domain.Filters
 {
     public class ValidationFilter : IAsyncActionFilter
     {

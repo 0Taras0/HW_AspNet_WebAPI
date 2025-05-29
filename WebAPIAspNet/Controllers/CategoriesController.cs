@@ -1,13 +1,15 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using WebAPIAspNet.Data;
-using WebAPIAspNet.Data.Entities;
-using WebAPIAspNet.Interfaces;
-using WebAPIAspNet.Model.Category;
+using Domain.Constants;
+using Domain.Data;
+using Domain.Data.Entities;
+using Core.Interfaces;
+using Core.Model.Category;
 
-namespace WebAPIAspNet.Controllers
+namespace Domain.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -44,6 +46,7 @@ namespace WebAPIAspNet.Controllers
             return NoContent();
         }
 
+        [Authorize(Roles = $"{Roles.Admin}")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetItemById(int id)
         {

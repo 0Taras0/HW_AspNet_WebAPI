@@ -1,4 +1,4 @@
-namespace WebAPIAspNet
+namespace Domain
 {
     public class WeatherForecast
     {
