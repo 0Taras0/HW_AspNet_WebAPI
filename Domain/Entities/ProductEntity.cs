@@ -27,5 +27,6 @@ namespace Domain.Entities
         public long? ProductSizeId { get; set; }
 
         public ProductSizeEntity? ProductSize { get; set; }
+        public ICollection<ProductIngredientEntity>?  ProductIngredients { get; set; }
     }
 }
