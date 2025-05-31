@@ -9,5 +9,7 @@ namespace Domain.Entities
     {
         [StringLength(250)]
         public string Name { get; set; } = String.Empty;
+
+        public ICollection<ProductEntity>? Products { get; set; } = new List<ProductEntity>();
     }
 }
