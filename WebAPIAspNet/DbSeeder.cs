@@ -58,7 +58,7 @@ namespace Domain
                 }
             }
 
-            if (!context.ingredients.Any())
+            if (!context.Ingredients.Any())
             {
                 var jsonFile = Path.Combine(Directory.GetCurrentDirectory(), "Helpers", "JsonData", "Ingredients.json");
                 if (File.Exists(jsonFile))
@@ -74,7 +74,7 @@ namespace Domain
                                 await imageService.SaveImageFromUrlAsync(entity.Image);
                         }
 
-                        await context.ingredients.AddRangeAsync(entityItems);
+                        await context.Ingredients.AddRangeAsync(entityItems);
                         await context.SaveChangesAsync();
 
                     }

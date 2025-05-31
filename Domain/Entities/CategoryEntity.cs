@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Domain.Entities;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Data.Entities
@@ -12,5 +13,6 @@ namespace Domain.Data.Entities
         public string Image { get; set; } = String.Empty;
         [StringLength(250)]
         public string Slug { get; set; } = String.Empty;
+        //public ICollection<ProductEntity>? Products { get; set; }
     }
 }

@@ -12,7 +12,8 @@ namespace Domain.Data
         {
         }
         public DbSet<CategoryEntity> Categories { get; set; }
-        public DbSet<IngredientEntity> ingredients { get; set; }
+        public DbSet<IngredientEntity> Ingredients { get; set; }
+        public DbSet<ProductSizeEntity> ProductSizes { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
