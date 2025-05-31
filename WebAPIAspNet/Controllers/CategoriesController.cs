@@ -13,36 +13,26 @@ namespace Domain.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoriesController(AppDbContext context, IMapper mapper, IImageService imageService, IValidator<CategoryCreateModel> validator) : ControllerBase
+    public class CategoriesController(ICategoryService categoryService) : ControllerBase
     {
         [HttpGet]
         public async Task<IActionResult> List()
         {
-            var model = await mapper.ProjectTo<CategoryItemModel>(context.Categories).ToListAsync();
+            var model = await categoryService.ListAsync();
 
             return Ok(model);
         }
         [HttpPost]
         public async Task<IActionResult> Create([FromForm] CategoryCreateModel model)
         {
-            var entity = mapper.Map<CategoryEntity>(model);
-            entity.Image = await imageService.SaveImageAsync(model.ImageFile!);
-            await context.Categories.AddAsync(entity);
-            await context.SaveChangesAsync();
+            var entity = await categoryService.CreateAsync(model);
             return Ok(entity);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(long id)
         {
-            var entity = await context.Categories.FindAsync(id);
-            if (entity == null)
-            {
-                return NotFound();
-            }
-            await imageService.DeleteImageAsync(entity.Image);
-            context.Categories.Remove(entity);
-            await context.SaveChangesAsync();
+            var entity = await categoryService.DeleteAsync(id);
             return NoContent();
         }
 
@@ -50,9 +40,7 @@ namespace Domain.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetItemById(int id)
         {
-            var model = await mapper
-                .ProjectTo<CategoryItemModel>(context.Categories.Where(x => x.Id == id))
-                .SingleOrDefaultAsync();
+            var model = await categoryService.GetItemByIdAsync(id);
             if (model == null)
             {
                 return NotFound();
@@ -63,22 +51,9 @@ namespace Domain.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Edit([FromForm] CategoryUpdateModel model)
         {
-            var existing = await context.Categories.FirstOrDefaultAsync(x => x.Id == model.Id);
-            if (existing == null)
-            {
-                return NotFound();
-            }
+            var entity = await categoryService.UpdateAsync(model);
 
-            existing = mapper.Map(model, existing);
-
-            if (model.ImageFile != null)
-            {
-                await imageService.DeleteImageAsync(existing.Image);
-                existing.Image = await imageService.SaveImageAsync(model.ImageFile);
-            }
-            await context.SaveChangesAsync();
-
-            return Ok();
+            return Ok(entity);
         }
     }
 }

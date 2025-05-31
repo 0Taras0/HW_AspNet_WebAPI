@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Domain.Data.Entities;
 using Domain.Data.Entities.Identity;
+using Domain.Entities;
 
 namespace Domain.Data
 {
@@ -11,6 +12,7 @@ namespace Domain.Data
         {
         }
         public DbSet<CategoryEntity> Categories { get; set; }
+        public DbSet<IngredientEntity> ingredients { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

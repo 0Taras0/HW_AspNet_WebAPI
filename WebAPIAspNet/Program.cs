@@ -13,23 +13,17 @@ using Domain.Data.Entities.Identity;
 using Domain.Filters;
 using Core.Interfaces;
 using Core.Services;
+using Core.Model.Account;
+using Core.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddIdentity<UserEntity, RoleEntity>(options =>
-{
-    options.Password.RequireDigit = false;
-    options.Password.RequiredLength = 6;
-    options.Password.RequireLowercase = false;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequireUppercase = false;
-}).AddEntityFrameworkStores<AppDbContext>()
-  .AddDefaultTokenProviders();
+builder.Services.AddIdentityConfiguration();
+
 
 builder.Services.AddAuthentication(options =>
 {
@@ -53,6 +47,7 @@ builder.Services.AddAuthentication(options =>
 });
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
@@ -73,7 +68,7 @@ builder.Services.AddMvc(options =>
 
 builder.Services.AddEndpointsApiExplorer();
 
-var assemblyName = typeof(Program).Assembly.GetName().Name;
+var assemblyName = typeof(LoginModel).Assembly.GetName().Name;
 
 builder.Services.AddSwaggerGen(opt =>
 {

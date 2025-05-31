@@ -9,6 +9,7 @@ using Domain.Data.Entities.Identity;
 using Core.Interfaces;
 using Core.Model.Seeder;
 using Core.Services;
+using Domain.Entities;
 
 namespace Domain
 {
@@ -42,7 +43,38 @@ namespace Domain
                                 await imageService.SaveImageFromUrlAsync(entity.Image);
                         }
 
-                        await context.AddRangeAsync(entityItems);
+                        await context.Categories.AddRangeAsync(entityItems);
+                        await context.SaveChangesAsync();
+
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Error Json Parse Data {0}", ex.Message);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Not Found File Categories.json");
+                }
+            }
+
+            if (!context.ingredients.Any())
+            {
+                var jsonFile = Path.Combine(Directory.GetCurrentDirectory(), "Helpers", "JsonData", "Ingredients.json");
+                if (File.Exists(jsonFile))
+                {
+                    var jsonData = await File.ReadAllTextAsync(jsonFile);
+                    try
+                    {
+                        var ingredients = JsonSerializer.Deserialize<List<SeederIngredientModel>>(jsonData);
+                        var entityItems = mapper.Map<List<IngredientEntity>>(ingredients);
+                        foreach (var entity in entityItems)
+                        {
+                            entity.Image =
+                                await imageService.SaveImageFromUrlAsync(entity.Image);
+                        }
+
+                        await context.ingredients.AddRangeAsync(entityItems);
                         await context.SaveChangesAsync();
 
                     }
