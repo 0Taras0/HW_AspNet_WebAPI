@@ -89,6 +89,32 @@ namespace Domain
                 }
             }
 
+            if (!context.ProductSizes.Any())
+            {
+                var jsonFile = Path.Combine(Directory.GetCurrentDirectory(), "Helpers", "JsonData", "ProductSizes.json");
+                if (File.Exists(jsonFile))
+                {
+                    var jsonData = await File.ReadAllTextAsync(jsonFile);
+                    try
+                    {
+                        var productSizes = JsonSerializer.Deserialize<List<SeederProductSizeModel>>(jsonData);
+                        var entityItems = mapper.Map<List<ProductSizeEntity>>(productSizes);
+
+                        await context.ProductSizes.AddRangeAsync(entityItems);
+                        await context.SaveChangesAsync();
+
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Error Json Parse Data {0}", ex.Message);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Not Found File Categories.json");
+                }
+            }
+
             if (!context.Roles.Any())
             {
                 foreach (var role in Roles.AllRoles)
