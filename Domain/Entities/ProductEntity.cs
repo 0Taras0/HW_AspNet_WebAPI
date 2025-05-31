@@ -28,5 +28,6 @@ namespace Domain.Entities
 
         public ProductSizeEntity? ProductSize { get; set; }
         public ICollection<ProductIngredientEntity>?  ProductIngredients { get; set; }
+        public ICollection<ProductImageEntity>?  ProductImages { get; set; }
     }
 }
