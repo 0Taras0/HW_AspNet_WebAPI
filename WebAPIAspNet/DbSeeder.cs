@@ -8,7 +8,6 @@ using Domain.Data.Entities;
 using Domain.Data.Entities.Identity;
 using Core.Interfaces;
 using Core.Model.Seeder;
-using Core.Services;
 using Domain.Entities;
 
 namespace Domain
