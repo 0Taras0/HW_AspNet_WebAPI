@@ -115,7 +115,7 @@ namespace Domain
             }
 
 
-            if (!context.Products.Any())
+            if (context.Products.Count() == 0)
             {
                 var сaesar = new ProductEntity
                 {
@@ -123,7 +123,7 @@ namespace Domain
                     Slug = "caesar",
                     Price = 195,
                     Weight = 540,
-                    CategoryId = 7, // Assuming the first category is for Caesar
+                    CategoryId = 1, // Assuming the first category is for Caesar
                     ProductSizeId = 1 // Assuming the first size is for Caesar
                 };
 
@@ -144,10 +144,63 @@ namespace Domain
                 await context.SaveChangesAsync();
 
                 string[] images = {
-                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRN9gItVjEVGS7l2_WkYpNfWJa5y_XQcZ0hQ&s",
-                "https://cdn.lifehacker.ru/wp-content/uploads/2022/03/11187_1522960128.7729_1646727034-1170x585.jpg",
-                "https://i.obozrevatel.com/food/recipemain/2020/2/5/zhenygohvrxm865gbgzsoxnru3mxjfhwwjd4bmvp.jpeg?size=636x424"
-            };
+                    "https://lovepizza.com.ua/images/virtuemart/product/cezar.500x500.png",
+                    "https://cipollino.ua/content/uploads/images/pytstsa-tsezar-svezhest-khrustiashchest-y-sytost-cipollino.jpg",
+                    "https://cipollino.ua/content/uploads/images/pytstsa-tsezar-svezhest-khrustiashchest-y-sytost-2-cipollino.jpg"
+                };
+                foreach (var imageUrl in images)
+                {
+                    try
+                    {
+                        var productImage = new ProductImageEntity
+                        {
+                            ProductId = сaesar.Id,
+                            Name = await imageService.SaveImageFromUrlAsync(imageUrl)
+                        };
+                        context.ProductImages.Add(productImage);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Error Save Image {0} - {1}", imageUrl, ex.Message);
+                    }
+
+                }
+                await context.SaveChangesAsync();
+
+            }
+
+            if (context.Products.Count() == 1)
+            {
+                var сaesar = new ProductEntity
+                {
+                    Name = "Цезаре",
+                    Slug = "caesar",
+                    Price = 355,
+                    Weight = 1080,
+                    CategoryId = 1, // Assuming the first category is for Caesar
+                    ProductSizeId = 2 // Assuming the first size is for Caesar
+                };
+
+                context.Products.Add(сaesar);
+                await context.SaveChangesAsync();
+
+                var ingredients = context.Ingredients.ToList();
+
+                foreach (var ingredient in ingredients)
+                {
+                    var productIngredient = new ProductIngredientEntity
+                    {
+                        ProductId = сaesar.Id,
+                        IngredientId = ingredient.Id
+                    };
+                    context.ProductIngredients.Add(productIngredient);
+                }
+                await context.SaveChangesAsync();
+
+                string[] images = {
+                    "https://kvadratsushi.com/wp-content/uploads/2020/06/chezar_1200x800.jpg",
+                    "https://kingpizza.kh.ua/resources/products/20210810115749_ca6b6cbe9b.jpg"
+                };
                 foreach (var imageUrl in images)
                 {
                     try

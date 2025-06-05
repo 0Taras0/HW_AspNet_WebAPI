@@ -11,7 +11,7 @@ namespace Core.Model.Product
         public int Weight { get; set; }
         public CategoryItemModel? Category { get; set; }
         public ProductSizeModel? ProductSize { get; set; }
-        public ICollection<ProductIngredientModel>? ProductIngredients { get; set; }
-        public ICollection<ProductImageModel>? ProductImages { get; set; }
+        public List<ProductIngredientModel>? ProductIngredients { get; set; }
+        public List<ProductImageModel>? ProductImages { get; set; }
     }
 }

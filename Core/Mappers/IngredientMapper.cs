@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Core.Model.Category;
+using Core.Model.Product;
 using Core.Model.Seeder;
 using Domain.Data.Entities;
 using Domain.Entities;
@@ -11,6 +12,7 @@ namespace Core.Mappers
         public IngredientMapper()
         {
             CreateMap<SeederIngredientModel, IngredientEntity>();
+            CreateMap<IngredientEntity, ProductIngredientModel>();
         }
     }
 }
