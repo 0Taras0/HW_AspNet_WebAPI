@@ -14,6 +14,9 @@ namespace Core.Mappers
                     .MapFrom(x => x.ProductImages!.OrderBy(x => x.Prority)))
                 .ForMember(src => src.ProductIngredients, opt => opt
                     .MapFrom(x => x.ProductIngredients!.Select(x => x.Ingredient)));
+            CreateMap<ProductCreateModel, ProductEntity>()
+                .ForMember(x => x.ProductImages, opt => opt.Ignore())
+                .ForMember(x => x.ProductIngredients, opt => opt.Ignore());
         }
     }
 }
