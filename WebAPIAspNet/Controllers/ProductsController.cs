@@ -36,7 +36,7 @@ namespace WebAPIAspNet.Controllers
             if (model.ImageFiles == null)
                 return BadRequest("Image files are empty!");
 
-            if (model.ProductIngredientsId == null)
+            if (model.IngredientIds == null)
                 return BadRequest("Product ingredients are empty!");
 
             var entity = await productService.Create(model);
@@ -45,6 +45,22 @@ namespace WebAPIAspNet.Controllers
                 return Ok(model);
             else 
                 return BadRequest("Error create product!");
+        }
+
+        [HttpGet("sizes")]
+        public async Task<IActionResult> GetSizes()
+        {
+            var sizes = await productService.GetSizesAsync();
+
+            return Ok(sizes);
+        }
+
+        [HttpGet("ingredients")]
+        public async Task<IActionResult> GetIngredients()
+        {
+            var ingredients = await productService.GetIngredientsAsync();
+
+            return Ok(ingredients);
         }
     }
 }

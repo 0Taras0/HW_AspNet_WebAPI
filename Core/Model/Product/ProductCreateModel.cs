@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Core.Model.Product
 {
@@ -10,7 +11,8 @@ namespace Core.Model.Product
         public int Weight { get; set; }
         public long CategoryId { get; set; }
         public long ProductSizeId { get; set; }
-        public List<long>? ProductIngredientsId { get; set; }
+        public List<long>? IngredientIds { get; set; }
+        [BindProperty(Name = "imageFiles[]")]
         public List<IFormFile>? ImageFiles { get; set; }
     }
 }
