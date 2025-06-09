@@ -47,6 +47,15 @@ namespace WebAPIAspNet.Controllers
                 return BadRequest("Error create product!");
         }
 
+        [HttpPut("edit")]
+        public async Task<IActionResult> Edit([FromForm] ProductEditModel model)
+        {
+            var entity = await productService.Edit(model);
+            if (entity != null)
+              return Ok(model);
+            else return BadRequest("Error edit product!");
+        }
+
         [HttpGet("sizes")]
         public async Task<IActionResult> GetSizes()
         {

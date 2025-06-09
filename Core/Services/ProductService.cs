@@ -2,7 +2,9 @@
 using AutoMapper.QueryableExtensions;
 using Core.Interfaces;
 using Core.Model.Product;
+using Core.Services;
 using Domain.Data;
+using Domain.Data.Entities;
 using Domain.Entities;
 using MailKit;
 using Microsoft.EntityFrameworkCore;
@@ -114,6 +116,71 @@ namespace Core.Services
                 .ProjectTo<ProductSizeModel>(mapper.ConfigurationProvider)
                 .ToListAsync();
             return sizes;
+        }
+
+        async Task<ProductItemModel> IProductService.Edit(ProductEditModel model)
+        {
+            var item = await context.Products
+                .Where(x => x.Id == model.Id)
+                .ProjectTo<ProductItemModel>(mapper.ConfigurationProvider)
+                .SingleOrDefaultAsync();
+
+            //Якщо фото немає у списку, то видаляємо його
+            var imgDelete = item.ProductImages
+                .Where(x => !model.ImageFiles!.Any(y => y.FileName == x.Name))
+                .ToList();
+
+            foreach (var img in imgDelete)
+            {
+                var productImage = await context.ProductImages
+                    .Where(x => x.Id == img.Id)
+                    .SingleOrDefaultAsync();
+                if (productImage != null)
+                {
+                    await imageService.DeleteImageAsync(productImage.Name);
+                    context.ProductImages.Remove(productImage);
+                }
+                context.SaveChanges();
+            }
+
+            short p = 0;
+            //Перебираємо усі фото і їх зберігаємо або оновляємо
+            foreach (var imgFile in model.ImageFiles!)
+            {
+                if (imgFile.ContentType == "old-image")
+                {
+                    var img = await context.ProductImages
+                        .Where(x => x.Name == imgFile.FileName)
+                        .SingleOrDefaultAsync();
+                    img.Prority = p;
+                    context.SaveChanges();
+                }
+
+                else
+                {
+                    try
+                    {
+                        var productImage = new ProductImageEntity
+                        {
+                            ProductId = item.Id,
+                            Name = await imageService.SaveImageAsync(imgFile),
+                            Prority = p
+                        };
+                        context.ProductImages.Add(productImage);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Error Json Parse Data for PRODUCT IMAGE", ex.Message);
+                    }
+                }
+
+                p++;
+
+            }
+
+
+            await context.SaveChangesAsync();
+            return item;
         }
     }
 }
