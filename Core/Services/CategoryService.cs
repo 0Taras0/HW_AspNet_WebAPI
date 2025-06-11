@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Core.Interfaces;
 using Core.Model.Category;
+using Core.Model.Pagination;
 using Domain.Data;
 using Domain.Data.Entities;
 using FluentValidation;
@@ -43,6 +44,38 @@ namespace Core.Services
         {
             var model = await mapper.ProjectTo<CategoryItemModel>(context.Categories).ToListAsync();
             return model;
+        }
+
+        public async Task<PaginationModel<CategoryItemModel>> ListAsync(CategorySearchModel searchModel)
+        {
+            int page = searchModel.CurrentPage;
+            int pageSize = searchModel.PageSize;
+            var query = context.Categories.AsQueryable();
+            if (!string.IsNullOrEmpty(searchModel.Name))
+            {
+                query = query.Where(x => x.Name.ToLower().Contains(searchModel.Name.ToLower()));
+            }
+            if (!string.IsNullOrEmpty(searchModel.CategorySlug))
+            {
+                query = query.Where(x => x.Slug.ToLower().Contains(searchModel.CategorySlug.ToLower()));
+            }
+            var model = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(x => mapper.Map<CategoryItemModel>(x))
+                .ToListAsync();
+            int total = query.Count();
+            int pages = (int)Math.Ceiling(total / (double)pageSize);
+
+            var paginationModel = new PaginationModel<CategoryItemModel>
+            {
+                Items = model,
+                TotalPages = pages,
+                CurrentPage = page,
+                PageSize = searchModel.PageSize
+            };
+
+            return paginationModel;
         }
 
         public async Task<CategoryItemModel> UpdateAsync(CategoryUpdateModel model)

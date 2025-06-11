@@ -55,5 +55,22 @@ namespace Domain.Controllers
 
             return Ok(entity);
         }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> Search([FromQuery] CategorySearchModel searchModel)
+        {
+            try
+            {
+                var model = await categoryService.ListAsync(searchModel);
+                return Ok(model);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    invalid = ex.Message
+                });
+            }
+        }
     }
 }

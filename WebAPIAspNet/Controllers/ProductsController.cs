@@ -1,5 +1,6 @@
 ﻿using Core.Interfaces;
 using Core.Model.Product;
+using Core.Model.Product.Ingredient;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPIAspNet.Controllers
@@ -51,9 +52,11 @@ namespace WebAPIAspNet.Controllers
         public async Task<IActionResult> Edit([FromForm] ProductEditModel model)
         {
             var entity = await productService.Edit(model);
+
             if (entity != null)
-              return Ok(model);
-            else return BadRequest("Error edit product!");
+                return Ok(model);
+            else 
+                return BadRequest("Error edit product!");
         }
 
         [HttpGet("sizes")]
@@ -70,6 +73,22 @@ namespace WebAPIAspNet.Controllers
             var ingredients = await productService.GetIngredientsAsync();
 
             return Ok(ingredients);
+        }
+
+        [HttpPost("ingredients")]
+        public async Task<IActionResult> CreateIngredient([FromForm] CreateIngredientModel model)
+        {
+            var ingredient = await productService.UploadIngredient(model);
+            if (ingredient != null)
+                return Ok(ingredient);
+            return BadRequest();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(long id)
+        {
+            await productService.Delete(id);
+            return Ok();
         }
     }
 }
