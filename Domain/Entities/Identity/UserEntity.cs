@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 
 namespace Domain.Data.Entities.Identity
 {
@@ -9,5 +10,6 @@ namespace Domain.Data.Entities.Identity
         public string? Image { get; set; } = null;
 
         public virtual ICollection<UserRoleEntity>? UserRoles { get; set; }
+        public ICollection<CartEntity>? Carts { get; set; }
     }
 }

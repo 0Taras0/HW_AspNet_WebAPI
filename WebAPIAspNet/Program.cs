@@ -50,6 +50,12 @@ builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+
+//ўоб отримати доступ до HttpContext в серв≥сах
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
