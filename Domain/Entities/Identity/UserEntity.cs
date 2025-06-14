@@ -11,5 +11,6 @@ namespace Domain.Data.Entities.Identity
 
         public virtual ICollection<UserRoleEntity>? UserRoles { get; set; }
         public ICollection<CartEntity>? Carts { get; set; }
+        public ICollection<OrderEntity>? Orders { get; set; }
     }
 }
