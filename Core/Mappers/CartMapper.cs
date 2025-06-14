@@ -18,6 +18,8 @@ namespace Core.Mappers
                     x.Product!.ProductImages != null && x.Product.ProductImages.Any()
                         ? x.Product.ProductImages.OrderBy(x => x.Prority).First().Name
                         : null));
+            CreateMap<CartCreateUpdateModel, CartEntity>()
+                .ForMember(dest => dest.UserId, opt => opt.Ignore());
         }
     }
 }

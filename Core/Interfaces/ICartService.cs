@@ -6,5 +6,6 @@ namespace Core.Interfaces
     {
         Task CreateUpdateAsync(CartCreateUpdateModel model);
         Task<List<CartItemModel>> GetCartItemsAsync();
+        Task DeleteAsync(long id);
     }
 }

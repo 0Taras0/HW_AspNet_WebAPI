@@ -20,15 +20,24 @@ namespace Core.Services
             }
             else
             {
-                entity = new CartEntity
-                {
-                    UserId = userId,
-                    ProductId = model.ProductId,
-                    Quantity = model.Quantity
-                };
+                entity = mapper.Map<CartEntity>(model);
+                entity.UserId = userId;
+
                 context.Carts.Add(entity);
             }
             await context.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(long id)
+        {
+            var userId = await authService.GetUserId();
+            var item = await context.Carts
+                .SingleOrDefaultAsync(x => x.UserId == userId && x.ProductId == id);
+            if (item != null)
+            {
+                context.Carts.Remove(item);
+                await context.SaveChangesAsync();
+            }
         }
 
         public async Task<List<CartItemModel>> GetCartItemsAsync()

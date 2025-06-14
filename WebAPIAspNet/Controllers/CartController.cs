@@ -27,5 +27,12 @@ namespace WebAPIAspNet.Controllers
             var items = await cartService.GetCartItemsAsync();
             return Ok(items);
         }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(long id)
+        {
+            await cartService.DeleteAsync(id);
+            return Ok();
+        }
     }
 }

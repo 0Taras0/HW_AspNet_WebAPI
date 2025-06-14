@@ -18,6 +18,7 @@ namespace Domain.Data
         public DbSet<ProductIngredientEntity> ProductIngredients { get; set; }
         public DbSet<ProductImageEntity> ProductImages { get; set; }
         public DbSet<CartEntity> Carts { get; set; }
+        public DbSet<OrderStatusEntity> OrderStatuses { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
