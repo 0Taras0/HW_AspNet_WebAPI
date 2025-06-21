@@ -36,7 +36,7 @@ namespace Domain.Controllers
             return NoContent();
         }
 
-        [Authorize(Roles = $"{Roles.Admin}")]
+        //[Authorize(Roles = $"{Roles.Admin}")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetItemById(int id)
         {
