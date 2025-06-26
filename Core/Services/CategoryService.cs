@@ -25,8 +25,8 @@ namespace Core.Services
         {
             var entity = await context.Categories.FindAsync(id);
 
-            await imageService.DeleteImageAsync(entity.Image);
-            context.Categories.Remove(entity);
+            entity!.IsDeleted = true;
+
             await context.SaveChangesAsync();
             var deletedModel = mapper.Map<CategoryItemModel>(entity);
             return deletedModel;
@@ -35,14 +35,14 @@ namespace Core.Services
         public async Task<CategoryItemModel?> GetItemByIdAsync(int id)
         {
             var model = await mapper
-                .ProjectTo<CategoryItemModel>(context.Categories.Where(x => x.Id == id))
+                .ProjectTo<CategoryItemModel>(context.Categories.Where(x => x.Id == id && !x.IsDeleted))
                 .SingleOrDefaultAsync();
             return model;
         }
 
         public async Task<List<CategoryItemModel>> ListAsync()
         {
-            var model = await mapper.ProjectTo<CategoryItemModel>(context.Categories).ToListAsync();
+            var model = await mapper.ProjectTo<CategoryItemModel>(context.Categories.Where(c => !c.IsDeleted)).ToListAsync();
             return model;
         }
 
@@ -80,7 +80,7 @@ namespace Core.Services
 
         public async Task<CategoryItemModel> UpdateAsync(CategoryUpdateModel model)
         {
-            var existing = await context.Categories.FirstOrDefaultAsync(x => x.Id == model.Id);
+            var existing = await context.Categories.FirstOrDefaultAsync(x => x.Id == model.Id && !x.IsDeleted);
 
             existing = mapper.Map(model, existing);
 
