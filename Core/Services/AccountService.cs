@@ -5,11 +5,14 @@ using Core.Model.Account;
 using Domain.Constants;
 using Domain.Data.Entities.Identity;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using System.Data;
+using System.Net.Http.Headers;
+using System.Text.Json;
 
 namespace Core.Services
 {
-    public class AccountService(IJwtTokenService jwtTokenService, UserManager<UserEntity> userManager, IMapper mapper, IImageService imageService) : IAccountService
+    public class AccountService(IJwtTokenService jwtTokenService, UserManager<UserEntity> userManager, IMapper mapper, IImageService imageService, IConfiguration configuration) : IAccountService
     {
         public async Task<AuthResult> LoginAsync(LoginModel model)
         {
@@ -21,6 +24,50 @@ namespace Core.Services
             }
 
             return AuthResult.FailureResult("Invalid email or password");
+        }
+
+        public async Task<string> LoginByGoogle(string token)
+        {
+            using var httpClient = new HttpClient();
+
+            httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", token);
+
+            string userInfo = configuration["GoogleUserInfo"] ?? "https://www.googleapis.com/oauth2/v2/userinfo";
+            var response = await httpClient.GetAsync(userInfo);
+
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            var googleUser = JsonSerializer.Deserialize<GoogleAccountModel>(json);
+
+            var existingUser = await userManager.FindByEmailAsync(googleUser!.Email);
+            if (existingUser != null)
+            {
+                var jwtToken = await jwtTokenService.CreateTokenAsync(existingUser);
+                return jwtToken;
+            }
+            else
+            {
+                var user = mapper.Map<UserEntity>(googleUser);
+
+                if (!String.IsNullOrEmpty(googleUser.Picture))
+                {
+                    user.Image = await imageService.SaveImageFromUrlAsync(googleUser.Picture);
+                }
+
+                var result = await userManager.CreateAsync(user);
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(user, "User");
+                    var jwtToken = await jwtTokenService.CreateTokenAsync(user);
+                    return jwtToken;
+                }
+            }
+
+            return string.Empty;
         }
 
         public async Task<AuthResult> RegisterAsync(RegisterModel model)

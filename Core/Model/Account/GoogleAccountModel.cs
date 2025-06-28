@@ -1,0 +1,23 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
+
+namespace Core.Model.Account
+{
+    public class GoogleAccountModel
+    {
+        [JsonPropertyName("email")]
+        public string Email { get; set; } = string.Empty;
+
+        [JsonPropertyName("given_name")]
+        public string FirstName { get; set; } = string.Empty;
+        [JsonPropertyName("family_name")]
+        public string LastName { get; set; } = string.Empty;
+        [JsonPropertyName("picture")]
+        public string Picture { get; set; } = string.Empty;
+    }
+
+}
