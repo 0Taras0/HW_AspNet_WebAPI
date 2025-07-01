@@ -2,18 +2,43 @@
 using Core.Constants;
 using Core.Interfaces;
 using Core.Model.Account;
+using Core.SMTP;
 using Domain.Constants;
 using Domain.Data.Entities.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
-using System.Data;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
 namespace Core.Services
 {
-    public class AccountService(IJwtTokenService jwtTokenService, UserManager<UserEntity> userManager, IMapper mapper, IImageService imageService, IConfiguration configuration) : IAccountService
+    public class AccountService(IJwtTokenService jwtTokenService, UserManager<UserEntity> userManager, IMapper mapper, IImageService imageService, IConfiguration configuration, ISMTPService smtpService) : IAccountService
     {
+        public async Task<bool> ForgotPasswordAsync(ForgotPasswordModel model)
+        {
+            var user = await userManager.FindByEmailAsync(model.Email);
+
+            if (user == null)
+            {
+                return false;
+            }
+
+            string token = await userManager.GeneratePasswordResetTokenAsync(user);
+            var resetLink = $"{configuration["ClientUrl"]}/reset-password?token={Uri.EscapeDataString(token)}&email={Uri.EscapeDataString(model.Email)}";
+
+            var emailModel = new EmailMessage
+            {
+                To = model.Email,
+                Subject = "Password Reset",
+                Body = $"<p>Click the link below to reset your password:</p><a href='{resetLink}'>Reset Password</a>"
+            };
+
+            var result = await smtpService.SendEmailAsync(emailModel);
+
+            return result;
+        }
+
+
         public async Task<AuthResult> LoginAsync(LoginModel model)
         {
             var user = await userManager.FindByEmailAsync(model.Email);
@@ -46,6 +71,12 @@ namespace Core.Services
             var existingUser = await userManager.FindByEmailAsync(googleUser!.Email);
             if (existingUser != null)
             {
+                var userLoginGoogle = await userManager.FindByLoginAsync("Google", googleUser.GoogleId);
+
+                if (userLoginGoogle == null)
+                {
+                    await userManager.AddLoginAsync(existingUser, new UserLoginInfo("Google", googleUser.GoogleId, "Google"));
+                }
                 var jwtToken = await jwtTokenService.CreateTokenAsync(existingUser);
                 return jwtToken;
             }
@@ -61,6 +92,11 @@ namespace Core.Services
                 var result = await userManager.CreateAsync(user);
                 if (result.Succeeded)
                 {
+                    result = await userManager.AddLoginAsync(user, new UserLoginInfo(
+                        loginProvider: "Google",
+                        providerKey: googleUser.GoogleId,
+                        displayName: "Google"
+                    ));
                     await userManager.AddToRoleAsync(user, "User");
                     var jwtToken = await jwtTokenService.CreateTokenAsync(user);
                     return jwtToken;
@@ -85,5 +121,26 @@ namespace Core.Services
 
             return AuthResult.FailureResult("Registration failed");
         }
+
+        public async Task ResetPasswordAsync(ResetPasswordModel model)
+        {
+            var user = await userManager.FindByEmailAsync(model.Email);
+
+            if (user != null)
+                await userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
+        }
+
+
+        public async Task<bool> ValidateResetTokenAsync(ValidateResetTokenModel model)
+        {
+            var user = await userManager.FindByEmailAsync(model.Email);
+
+            return await userManager.VerifyUserTokenAsync(
+                user,
+                TokenOptions.DefaultProvider,
+                "ResetPassword",
+                model.Token);
+        }
+
     }
 }

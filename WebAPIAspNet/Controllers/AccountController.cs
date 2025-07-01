@@ -51,5 +51,33 @@ namespace Domain.Controllers
                 Token = result
             });
         }
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordModel model)
+        {
+            bool res = await accountService.ForgotPasswordAsync(model);
+            if (res)
+                return Ok();
+            else
+                return BadRequest(new
+                {
+                    Status = 400,
+                    IsValid = false,
+                    Errors = new { Email = "Користувача з такою поштою не існує" }
+                });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ValidateResetToken([FromBody] ValidateResetTokenModel model)
+        {
+            bool res = await accountService.ValidateResetTokenAsync(model);
+            return Ok(new { IsValid = res });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordModel model)
+        {
+            await accountService.ResetPasswordAsync(model);
+            return Ok();
+        }
     }
 }
