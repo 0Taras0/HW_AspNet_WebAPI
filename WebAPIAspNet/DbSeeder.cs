@@ -252,23 +252,23 @@ namespace Domain
             if (!context.Orders.Any())
             {
                 List<OrderEntity> orders = new List<OrderEntity>
-            {
-                new OrderEntity
                 {
-                    UserId = 1,
-                    OrderStatusId = 1,
-                },
-                new OrderEntity
-                {
-                    UserId = 1,
-                    OrderStatusId = 10,
-                },
-                new OrderEntity
-                {
-                    UserId = 1,
-                    OrderStatusId = 9,
-                },
-            };
+                    new OrderEntity
+                    {
+                        UserId = 1,
+                        OrderStatusId = 1,
+                    },
+                    new OrderEntity
+                    {
+                        UserId = 1,
+                        OrderStatusId = 10,
+                    },
+                    new OrderEntity
+                    {
+                        UserId = 1,
+                        OrderStatusId = 9,
+                    },
+                };
 
                 context.Orders.AddRange(orders);
                 await context.SaveChangesAsync();

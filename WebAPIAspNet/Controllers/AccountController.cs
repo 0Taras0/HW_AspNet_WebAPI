@@ -66,8 +66,8 @@ namespace Domain.Controllers
                 });
         }
 
-        [HttpPost]
-        public async Task<IActionResult> ValidateResetToken([FromBody] ValidateResetTokenModel model)
+        [HttpGet]
+        public async Task<IActionResult> ValidateResetToken([FromQuery] ValidateResetTokenModel model)
         {
             bool res = await accountService.ValidateResetTokenAsync(model);
             return Ok(new { IsValid = res });
