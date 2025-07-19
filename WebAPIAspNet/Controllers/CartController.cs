@@ -1,7 +1,6 @@
 ﻿using Core.Interfaces;
 using Core.Model.Cart;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPIAspNet.Controllers

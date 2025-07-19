@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using Core.Model.Delivery;
 using Core.Model.Order;
 using Domain.Entities;
+using Domain.Entities.Delivery;
 
 namespace Core.Mappers
 {
@@ -18,6 +20,14 @@ namespace Core.Mappers
 
             CreateMap<OrderEntity, OrderModel>()
                 .ForMember(x => x.Status, opt => opt.MapFrom(x => x.OrderStatus!.Name));
+
+            CreateMap<CartEntity, OrderItemEntity>()
+            .ForMember(x => x.PriceBuy, opt => opt
+            .MapFrom(x => x.Product!.Price))
+            .ForMember(x => x.Quantity, opt => opt
+            .MapFrom(x => x.Quantity));
+
+            CreateMap<DeliveryInfoCreateModel, DeliveryInfoEntity>();
         }
     }
 }
