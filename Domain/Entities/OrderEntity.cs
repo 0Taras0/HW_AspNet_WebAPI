@@ -1,5 +1,6 @@
 ﻿using Domain.Data.Entities;
 using Domain.Data.Entities.Identity;
+using Domain.Entities.Delivery;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities
@@ -14,5 +15,6 @@ namespace Domain.Entities
         public OrderStatusEntity? OrderStatus { get; set; }
         public UserEntity? User { get; set; }
         public ICollection<OrderItemEntity>? OrderItems { get; set; }
+        public DeliveryInfoEntity? DeliveryInfo{ get; set; }
     }
 }

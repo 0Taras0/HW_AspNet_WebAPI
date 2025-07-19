@@ -45,6 +45,8 @@ builder.Services.AddAuthentication(options =>
             Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
     };
 });
+builder.Services.AddHttpClient();
+
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
@@ -55,6 +57,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ISMTPService, SMTPService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<INovaPoshtaService, NovaPoshtaService>();
 
 
 //ўоб отримати доступ до HttpContext в серв≥сах

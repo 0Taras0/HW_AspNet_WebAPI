@@ -30,5 +30,16 @@ namespace WebAPIAspNet.Controllers
             var result = await userService.SeedUsersAsync(model);
             return Ok(result);
         }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUserById(long id)
+        {
+            var user = await userService.GetUserByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            return Ok(user);
+        }
     }
 }

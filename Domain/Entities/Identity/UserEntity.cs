@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Domain.Entities.Identity;
 using Microsoft.AspNetCore.Identity;
 
 namespace Domain.Data.Entities.Identity
@@ -13,5 +14,6 @@ namespace Domain.Data.Entities.Identity
         public virtual ICollection<UserRoleEntity>? UserRoles { get; set; }
         public ICollection<CartEntity>? Carts { get; set; }
         public ICollection<OrderEntity>? Orders { get; set; }
+        public virtual ICollection<UserLoginEntity>? UserLogins { get; set; }
     }
 }

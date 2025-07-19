@@ -164,6 +164,21 @@ namespace Domain.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Data.Entities.Identity.UserRoleEntity", b =>
+                {
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("RoleId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetUserRoles", (string)null);
+                });
+
             modelBuilder.Entity("Domain.Data.Entities.OrderStatusEntity", b =>
                 {
                     b.Property<long>("Id")
@@ -204,6 +219,134 @@ namespace Domain.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("tblCarts");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Delivery.CityEntity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("tblCities");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Delivery.DeliveryInfoEntity", b =>
+                {
+                    b.Property<long>("OrderId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("CityId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("PaymentTypeId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("PostDepartmentId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("RecipientName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("OrderId");
+
+                    b.HasIndex("CityId");
+
+                    b.HasIndex("PaymentTypeId");
+
+                    b.HasIndex("PostDepartmentId");
+
+                    b.ToTable("tblDeliveryInfos");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Delivery.PaymentTypeEntity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("tblPaymentTypes");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Delivery.PostDepartmentEntity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CityId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CityId");
+
+                    b.ToTable("tblPostDepartments");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Identity.UserLoginEntity", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("text");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserLogins", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.IngredientEntity", b =>
@@ -463,49 +606,6 @@ namespace Domain.Migrations
                     b.ToTable("AspNetUserClaims", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<long>", b =>
-                {
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ProviderKey")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("text");
-
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("LoginProvider", "ProviderKey");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AspNetUserLogins", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<long>", b =>
-                {
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("RoleId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasMaxLength(34)
-                        .HasColumnType("character varying(34)");
-
-                    b.HasKey("UserId", "RoleId");
-
-                    b.ToTable("AspNetUserRoles", (string)null);
-
-                    b.HasDiscriminator().HasValue("IdentityUserRole<long>");
-
-                    b.UseTphMappingStrategy();
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<long>", b =>
                 {
                     b.Property<long>("UserId")
@@ -527,11 +627,21 @@ namespace Domain.Migrations
 
             modelBuilder.Entity("Domain.Data.Entities.Identity.UserRoleEntity", b =>
                 {
-                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUserRole<long>");
+                    b.HasOne("Domain.Data.Entities.Identity.RoleEntity", "Role")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasIndex("RoleId");
+                    b.HasOne("Domain.Data.Entities.Identity.UserEntity", "User")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasDiscriminator().HasValue("UserRoleEntity");
+                    b.Navigation("Role");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Domain.Entities.CartEntity", b =>
@@ -549,6 +659,63 @@ namespace Domain.Migrations
                         .IsRequired();
 
                     b.Navigation("Product");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Delivery.DeliveryInfoEntity", b =>
+                {
+                    b.HasOne("Domain.Entities.Delivery.CityEntity", "City")
+                        .WithMany("DeliveryInfos")
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.OrderEntity", "Order")
+                        .WithOne("DeliveryInfo")
+                        .HasForeignKey("Domain.Entities.Delivery.DeliveryInfoEntity", "OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Delivery.PaymentTypeEntity", "PaymentType")
+                        .WithMany("DeliveryInfos")
+                        .HasForeignKey("PaymentTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Delivery.PostDepartmentEntity", "PostDepartment")
+                        .WithMany("DeliveryInfos")
+                        .HasForeignKey("PostDepartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("City");
+
+                    b.Navigation("Order");
+
+                    b.Navigation("PaymentType");
+
+                    b.Navigation("PostDepartment");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Delivery.PostDepartmentEntity", b =>
+                {
+                    b.HasOne("Domain.Entities.Delivery.CityEntity", "City")
+                        .WithMany("PostDepartments")
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("City");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Identity.UserLoginEntity", b =>
+                {
+                    b.HasOne("Domain.Data.Entities.Identity.UserEntity", "User")
+                        .WithMany("UserLogins")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -656,15 +823,6 @@ namespace Domain.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<long>", b =>
-                {
-                    b.HasOne("Domain.Data.Entities.Identity.UserEntity", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<long>", b =>
                 {
                     b.HasOne("Domain.Data.Entities.Identity.UserEntity", null)
@@ -672,25 +830,6 @@ namespace Domain.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Domain.Data.Entities.Identity.UserRoleEntity", b =>
-                {
-                    b.HasOne("Domain.Data.Entities.Identity.RoleEntity", "Role")
-                        .WithMany("UserRoles")
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Data.Entities.Identity.UserEntity", "User")
-                        .WithMany("UserRoles")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Role");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Domain.Data.Entities.CategoryEntity", b =>
@@ -709,12 +848,31 @@ namespace Domain.Migrations
 
                     b.Navigation("Orders");
 
+                    b.Navigation("UserLogins");
+
                     b.Navigation("UserRoles");
                 });
 
             modelBuilder.Entity("Domain.Data.Entities.OrderStatusEntity", b =>
                 {
                     b.Navigation("Orders");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Delivery.CityEntity", b =>
+                {
+                    b.Navigation("DeliveryInfos");
+
+                    b.Navigation("PostDepartments");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Delivery.PaymentTypeEntity", b =>
+                {
+                    b.Navigation("DeliveryInfos");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Delivery.PostDepartmentEntity", b =>
+                {
+                    b.Navigation("DeliveryInfos");
                 });
 
             modelBuilder.Entity("Domain.Entities.IngredientEntity", b =>
@@ -724,6 +882,8 @@ namespace Domain.Migrations
 
             modelBuilder.Entity("Domain.Entities.OrderEntity", b =>
                 {
+                    b.Navigation("DeliveryInfo");
+
                     b.Navigation("OrderItems");
                 });
 

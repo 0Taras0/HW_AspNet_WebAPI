@@ -10,5 +10,6 @@ namespace Core.Interfaces
         Task<List<AdminUserItemModel>> GetAllUsersAsync();
         Task<SearchResult<AdminUserItemModel>> SearchUsersAsync(UserSearchModel model);
         Task<string> SeedUsersAsync(SeedItemsModel model);
+        Task<AdminUserItemModel> GetUserByIdAsync(long id);
     }
 }

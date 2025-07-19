@@ -35,20 +35,44 @@ namespace Core.Services
                 }
             });
 
-            await context.Users
-           .ForEachAsync(user =>
-           {
-               var adminUser = users.FirstOrDefault(u => u.Id == user.Id);
-               if (adminUser != null)
-               {
-                   if (!string.IsNullOrEmpty(user.PasswordHash))
-                   {
-                       adminUser.LoginTypes.Add("Password");
-                   }
-               }
-           });
+            await context.Users.ForEachAsync(user =>
+            {
+                var adminUser = users.FirstOrDefault(u => u.Id == user.Id);
+                if (adminUser != null)
+                {
+                    if (!string.IsNullOrEmpty(user.PasswordHash))
+                    {
+                        adminUser.LoginTypes.Add("Password");
+                    }
+                }
+            });
 
             return users;
+        }
+
+        public async Task<AdminUserItemModel> GetUserByIdAsync(long id)
+        {
+            var userEntity = await context.Users
+                .Include(u => u.UserRoles)
+                    .ThenInclude(ur => ur.Role)
+                .Include(u => u.UserLogins)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (userEntity == null)
+            {
+                return null;
+            }
+
+            var userModel = mapper.Map<AdminUserItemModel>(userEntity);
+
+            var loginProviders = userEntity.UserLogins?.Select(l => l.LoginProvider).Distinct().ToList();
+            if (loginProviders != null)
+                userModel.LoginTypes.AddRange(loginProviders);
+
+            if (userEntity.PasswordHash != null)
+                userModel.LoginTypes.Add("Password");
+
+            return userModel;
         }
 
         public async Task<SearchResult<AdminUserItemModel>> SearchUsersAsync(UserSearchModel model)
@@ -77,18 +101,7 @@ namespace Core.Services
 
             if (model.Roles != null && model.Roles.Any())
             {
-                var validRoles = model.Roles.Where(role => role != null);
-
-                if (validRoles != null && validRoles.Count() > 0)
-                {
-                    var usersInRole = (await Task.WhenAll(
-                        model.Roles.Select(role => userManager.GetUsersInRoleAsync(role))
-                    )).SelectMany(u => u).ToList();
-
-                    var userIds = usersInRole.Select(u => u.Id).ToHashSet();
-
-                    query = query.Where(u => userIds.Contains(u.Id));
-                }
+                query = query.Where(user => model.Roles.Any(role => user.UserRoles.Select(x => x.Role.Name).Contains(role)));
             }
 
             var totalCount = await query.CountAsync();
@@ -104,7 +117,27 @@ namespace Core.Services
                 .ProjectTo<AdminUserItemModel>(mapper.ConfigurationProvider)
                 .ToListAsync();
 
-            await LoadLoginsAndRolesAsync(users);
+            var userIds = users.Select(u => u.Id).ToList();
+
+            var logins = await context.UserLogins
+                .Where(l => userIds.Contains(l.UserId))
+                .ToListAsync();
+
+            var passwordUsers = await context.Users
+                .Where(u => userIds.Contains(u.Id) && u.PasswordHash != null)
+                .Select(u => u.Id)
+                .ToListAsync();
+
+            foreach (var user in users)
+            {
+                var userLogins = logins.Where(l => l.UserId == user.Id).Select(l => l.LoginProvider).Distinct();
+                user.LoginTypes.AddRange(userLogins);
+
+                if (passwordUsers.Contains(user.Id))
+                {
+                    user.LoginTypes.Add("Password");
+                }
+            }
 
             return new SearchResult<AdminUserItemModel>
             {

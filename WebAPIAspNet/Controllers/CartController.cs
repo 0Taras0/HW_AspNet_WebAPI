@@ -20,16 +20,26 @@ namespace WebAPIAspNet.Controllers
 
             return Ok(new { message = "Cart updated" });
         }
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> AddRange([FromBody] List<CartCreateUpdateModel> modelItems)
+        {
+            foreach (var item in modelItems)
+            {
+                await cartService.CreateUpdateAsync(item);
+            }
+            return Ok();
+        }
 
         [HttpGet]
-        public async Task<IActionResult> GetItems()
+        public async Task<IActionResult> GetCart()
         {
             var items = await cartService.GetCartItemsAsync();
             return Ok(items);
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(long id)
+        public async Task<IActionResult> RemoveCartItem(long id)
         {
             await cartService.DeleteAsync(id);
             return Ok();

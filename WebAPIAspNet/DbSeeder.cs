@@ -1,14 +1,15 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
+using Core.Interfaces;
+using Core.Model.Seeder;
 using Domain.Constants;
 using Domain.Data;
 using Domain.Data.Entities;
 using Domain.Data.Entities.Identity;
-using Core.Interfaces;
-using Core.Model.Seeder;
 using Domain.Entities;
+using Domain.Entities.Delivery;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace Domain
 {
@@ -23,6 +24,7 @@ namespace Domain
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserEntity>>();
             var mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
             var imageService = scope.ServiceProvider.GetRequiredService<IImageService>();
+            var novaPosta = scope.ServiceProvider.GetRequiredService<INovaPoshtaService>();
 
             context.Database.Migrate();
 
@@ -113,7 +115,6 @@ namespace Domain
                     Console.WriteLine("Not Found File Categories.json");
                 }
             }
-
 
             if (context.Products.Count() == 0)
             {
@@ -249,30 +250,30 @@ namespace Domain
                 await context.SaveChangesAsync();
             }
 
-            if (!context.Orders.Any())
-            {
-                List<OrderEntity> orders = new List<OrderEntity>
-                {
-                    new OrderEntity
-                    {
-                        UserId = 1,
-                        OrderStatusId = 1,
-                    },
-                    new OrderEntity
-                    {
-                        UserId = 1,
-                        OrderStatusId = 10,
-                    },
-                    new OrderEntity
-                    {
-                        UserId = 1,
-                        OrderStatusId = 9,
-                    },
-                };
+            //if (!context.Orders.Any())
+            //{
+            //    List<OrderEntity> orders = new List<OrderEntity>
+            //    {
+            //        new OrderEntity
+            //        {
+            //            UserId = 1,
+            //            OrderStatusId = 1,
+            //        },
+            //        new OrderEntity
+            //        {
+            //            UserId = 1,
+            //            OrderStatusId = 10,
+            //        },
+            //        new OrderEntity
+            //        {
+            //            UserId = 1,
+            //            OrderStatusId = 9,
+            //        },
+            //    };
 
-                context.Orders.AddRange(orders);
-                await context.SaveChangesAsync();
-            }
+            //    context.Orders.AddRange(orders);
+            //    await context.SaveChangesAsync();
+            //}
 
             if (!context.OrderItems.Any())
             {
@@ -308,6 +309,24 @@ namespace Domain
                     context.OrderItems.AddRange(orderItems);
                 }
 
+                await context.SaveChangesAsync();
+            }
+
+
+            if (!context.PostDepartments.Any())
+            {
+                await novaPosta.FetchDepartmentsAsync();
+            }
+
+            if (!context.PaymentTypes.Any())
+            {
+                var list = new List<PaymentTypeEntity>
+            {
+                new PaymentTypeEntity { Name = "Готівка" },
+                new PaymentTypeEntity { Name = "Картка" }
+            };
+
+                await context.PaymentTypes.AddRangeAsync(list);
                 await context.SaveChangesAsync();
             }
 
