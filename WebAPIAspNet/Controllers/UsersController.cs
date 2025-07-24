@@ -1,4 +1,5 @@
 ﻿using Core.Interfaces;
+using Core.Model.AdminUser;
 using Core.Model.Search.Params;
 using Core.Model.Seeder;
 using Microsoft.AspNetCore.Mvc;
@@ -40,6 +41,24 @@ namespace WebAPIAspNet.Controllers
                 return NotFound();
             }
             return Ok(user);
+        }
+
+        [HttpPut("edit")]
+        public async Task<IActionResult> UpdateUser([FromForm] AdminUserUpdateModel model)
+        {
+            var result = await userService.UpdateAsync(model);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            return Ok(result);
+        }
+
+        [HttpGet("roles")]
+        public async Task<IActionResult> GetRoles()
+        {
+            var roles = await userService.GetRolesAsync();
+            return Ok(roles);
         }
     }
 }

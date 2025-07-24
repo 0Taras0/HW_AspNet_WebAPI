@@ -11,10 +11,6 @@ namespace Domain.Entities.Delivery
         public long? OrderId { get; set; }
         public OrderEntity? Order { get; set; }
 
-        [ForeignKey("City")]
-        public long CityId { get; set; }
-        public CityEntity City { get; set; } = null!;
-
         [ForeignKey("PostDepartment")]
         public long PostDepartmentId { get; set; }
         public PostDepartmentEntity PostDepartment { get; set; } = null!;

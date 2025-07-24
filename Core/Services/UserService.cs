@@ -3,6 +3,7 @@ using AutoMapper.QueryableExtensions;
 using Bogus;
 using Core.Interfaces;
 using Core.Model.AdminUser;
+using Core.Model.Roles;
 using Core.Model.Search;
 using Core.Model.Search.Params;
 using Core.Model.Seeder;
@@ -48,6 +49,20 @@ namespace Core.Services
             });
 
             return users;
+        }
+
+        public async Task<RolesItemModel> GetRolesAsync()
+        {
+            var roles = await Task.FromResult(roleManager.Roles
+                .Select(r => r.Name)
+                .Where(name => !string.IsNullOrWhiteSpace(name))
+                .Distinct()
+                .ToList());
+
+            return  new RolesItemModel
+            {
+                Roles = roles
+            };
         }
 
         public async Task<AdminUserItemModel> GetUserByIdAsync(long id)
@@ -212,6 +227,57 @@ namespace Core.Services
             return elapsedTime;
         }
 
+        public async Task<AdminUserItemModel> UpdateAsync(AdminUserUpdateModel model)
+        {
+            var userEntity = await context.Users
+                .Include(u => u.UserRoles)
+                    .ThenInclude(ur => ur.Role)
+                .Include(u => u.UserLogins)
+                .FirstOrDefaultAsync(u => u.Id == model.Id);
+
+            userEntity = mapper.Map(model, userEntity);
+
+            if (model.ImageFile != null)
+            {
+                await imageService.DeleteImageAsync(userEntity.Image);
+                userEntity.Image = await imageService.SaveImageAsync(model.ImageFile);
+            }
+
+            if (!string.IsNullOrEmpty(model.Password))
+            {
+                await userManager.ResetPasswordAsync(userEntity, 
+                    await userManager.GeneratePasswordResetTokenAsync(userEntity), model.Password);
+            }
+
+            if (model.Roles.Count > 0)
+            {
+                await userManager.RemoveFromRolesAsync(userEntity, userEntity.UserRoles.Select(ur => ur.Role.Name));
+                foreach (var role in model.Roles)
+                {
+                    if (await context.Roles.AnyAsync(r => r.Name == role))
+                    {
+                        await userManager.AddToRoleAsync(userEntity, role);
+                    }
+                    else
+                    {
+                        throw new Exception($"Role '{role}' does not exist.");
+                    }
+                }
+            }
+
+            await context.SaveChangesAsync();
+
+            AdminUserItemModel updatedUser = mapper.Map<AdminUserItemModel>(userEntity);
+
+            var loginProviders = userEntity.UserLogins?.Select(l => l.LoginProvider).Distinct().ToList();
+            if (loginProviders != null)
+                updatedUser.LoginTypes.AddRange(loginProviders);
+
+            if (userEntity.PasswordHash != null)
+                updatedUser.LoginTypes.Add("Password");
+
+            return updatedUser;
+        }
 
         private async Task LoadLoginsAndRolesAsync(List<AdminUserItemModel> users)
         {
