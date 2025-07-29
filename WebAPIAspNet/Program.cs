@@ -1,6 +1,5 @@
-using FluentValidation;
+п»їusing FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
@@ -9,7 +8,6 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using Domain;
 using Domain.Data;
-using Domain.Data.Entities.Identity;
 using Domain.Filters;
 using Core.Interfaces;
 using Core.Services;
@@ -60,18 +58,18 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<INovaPoshtaService, NovaPoshtaService>();
 
 
-//Щоб отримати доступ до HttpContext в сервісах
+//Р©РѕР± РѕС‚СЂРёРјР°С‚Рё РґРѕСЃС‚СѓРї РґРѕ HttpContext РІ СЃРµСЂРІС–СЃР°С…
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-//Вимикаємо валідацію моделі ASP.NET
+//Р’РёРјРёРєР°С”РјРѕ РІР°Р»С–РґР°С†С–СЋ РјРѕРґРµР»С– ASP.NET
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
     options.SuppressModelStateInvalidFilter = true;
 });
 
-//Шукаємо усі можливі валідатори
+//РЁСѓРєР°С”РјРѕ СѓСЃС– РјРѕР¶Р»РёРІС– РІР°Р»С–РґР°С‚РѕСЂРё
 builder.Services.AddValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddMvc(options =>
@@ -116,13 +114,21 @@ builder.Services.AddSwaggerGen(opt =>
 
 });
 
-builder.Services.AddCors();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 builder.Services.AddControllers();
 
 var app = builder.Build();
 
-app.UseCors(x => x.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+app.UseCors("AllowAll");
 
 app.UseSwagger();
 app.UseSwaggerUI();
