@@ -2,6 +2,7 @@
 using Core.Model.AdminUser;
 using Core.Model.Search.Params;
 using Core.Model.Seeder;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPIAspNet.Controllers
@@ -26,6 +27,7 @@ namespace WebAPIAspNet.Controllers
         }
 
         [HttpGet("seed")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> SeedUsers([FromQuery] SeedItemsModel model)
         {
             var result = await userService.SeedUsersAsync(model);
@@ -44,6 +46,7 @@ namespace WebAPIAspNet.Controllers
         }
 
         [HttpPut("edit")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateUser([FromForm] AdminUserUpdateModel model)
         {
             var result = await userService.UpdateAsync(model);

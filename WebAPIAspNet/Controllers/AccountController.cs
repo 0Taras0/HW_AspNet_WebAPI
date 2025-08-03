@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Core.Interfaces;
 using Core.Model.Account;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Domain.Controllers
 {
@@ -78,6 +79,21 @@ namespace Domain.Controllers
         {
             await accountService.ResetPasswordAsync(model);
             return Ok();
+        }
+
+        [HttpPut]
+        [Authorize]
+        public async Task<IActionResult> Update([FromForm] AccountUpdateModel model)
+        {
+            var result = await accountService.UpdateAsync(model);
+            if (result.Success)
+                return Ok(new { Token = result.Token });
+            return BadRequest(new
+            {
+                status = 400,
+                isValid = false,
+                errors = result.ErrorMessage
+            });
         }
     }
 }

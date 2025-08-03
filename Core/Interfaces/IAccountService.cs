@@ -1,5 +1,6 @@
 ﻿using Core.Constants;
 using Core.Model.Account;
+using Core.Model.AdminUser;
 using Core.Model.Category;
 
 namespace Core.Interfaces
@@ -12,5 +13,6 @@ namespace Core.Interfaces
         Task<bool> ForgotPasswordAsync(ForgotPasswordModel model);
         Task<bool> ValidateResetTokenAsync(ValidateResetTokenModel model);
         Task ResetPasswordAsync(ResetPasswordModel model);
+        Task<AuthResult> UpdateAsync(AccountUpdateModel model);
     }
 }

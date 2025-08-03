@@ -4,6 +4,7 @@ using Core.Interfaces;
 using Core.Model.Account;
 using Core.SMTP;
 using Domain.Constants;
+using Domain.Data;
 using Domain.Data.Entities.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -12,7 +13,7 @@ using System.Text.Json;
 
 namespace Core.Services
 {
-    public class AccountService(IJwtTokenService jwtTokenService, UserManager<UserEntity> userManager, IMapper mapper, IImageService imageService, IConfiguration configuration, ISMTPService smtpService) : IAccountService
+    public class AccountService(IJwtTokenService jwtTokenService, UserManager<UserEntity> userManager, IMapper mapper, IImageService imageService, IConfiguration configuration, ISMTPService smtpService, AppDbContext context) : IAccountService
     {
         public async Task<bool> ForgotPasswordAsync(ForgotPasswordModel model)
         {
@@ -37,8 +38,6 @@ namespace Core.Services
 
             return result;
         }
-
-
         public async Task<AuthResult> LoginAsync(LoginModel model)
         {
             var user = await userManager.FindByEmailAsync(model.Email);
@@ -50,7 +49,6 @@ namespace Core.Services
 
             return AuthResult.FailureResult("Invalid email or password");
         }
-
         public async Task<string> LoginByGoogle(string token)
         {
             using var httpClient = new HttpClient();
@@ -105,7 +103,6 @@ namespace Core.Services
 
             return string.Empty;
         }
-
         public async Task<AuthResult> RegisterAsync(RegisterModel model)
         {
             var user = mapper.Map<UserEntity>(model);
@@ -121,7 +118,6 @@ namespace Core.Services
 
             return AuthResult.FailureResult("Registration failed");
         }
-
         public async Task ResetPasswordAsync(ResetPasswordModel model)
         {
             var user = await userManager.FindByEmailAsync(model.Email);
@@ -130,6 +126,29 @@ namespace Core.Services
                 await userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
         }
 
+        public async Task<AuthResult> UpdateAsync(AccountUpdateModel model)
+        {
+            var userEntity = await userManager.FindByEmailAsync(model.Email);
+
+            userEntity = mapper.Map(model, userEntity);
+
+            if (model.ImageFile != null)
+            {
+                await imageService.DeleteImageAsync(userEntity.Image);
+                userEntity.Image = await imageService.SaveImageAsync(model.ImageFile);
+            }
+
+            if (!string.IsNullOrEmpty(model.Password))
+            {
+                await userManager.ResetPasswordAsync(userEntity,
+                    await userManager.GeneratePasswordResetTokenAsync(userEntity), model.Password);
+            }
+
+            await context.SaveChangesAsync();
+
+            var token = await jwtTokenService.CreateTokenAsync(userEntity);
+            return AuthResult.SuccessResult(token);
+        }
 
         public async Task<bool> ValidateResetTokenAsync(ValidateResetTokenModel model)
         {
