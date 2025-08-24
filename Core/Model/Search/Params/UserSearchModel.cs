@@ -7,6 +7,6 @@
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public int Page { get; set; } = 1;
-        public int ItemPerPAge { get; set; } = 10;
+        public int ItemPerPage { get; set; } = 10;
     }
 }

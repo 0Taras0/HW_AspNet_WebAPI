@@ -32,6 +32,15 @@ namespace Core.Services
             return deletedModel;
         }
 
+        public async Task<string> GetCategoryNameById(int id)
+        {
+            var category = await context.Categories
+                .Where(c => c.Id == id)
+                .Select(c => c.Name)
+                .FirstOrDefaultAsync();
+            return category;
+        }
+
         public async Task<CategoryItemModel?> GetItemByIdAsync(int id)
         {
             var model = await mapper

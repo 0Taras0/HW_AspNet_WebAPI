@@ -3,11 +3,10 @@ using AutoMapper.QueryableExtensions;
 using Core.Interfaces;
 using Core.Model.Product;
 using Core.Model.Product.Ingredient;
-using Core.Services;
+using Core.Model.Search;
+using Core.Model.Search.Params;
 using Domain.Data;
-using Domain.Data.Entities;
 using Domain.Entities;
-using MailKit;
 using Microsoft.EntityFrameworkCore;
 
 namespace Core.Services
@@ -228,6 +227,71 @@ namespace Core.Services
             product.IsDeleted = true;
 
             await context.SaveChangesAsync();
+        }
+
+        async Task<ProductSearchResult> IProductService.SearchProductsAsync(ProductSearchModel model)
+        {
+            var query = context.Products.AsQueryable();
+
+            query = query.Where(p => !p.IsDeleted);
+
+            if (!string.IsNullOrEmpty(model.Name))
+            {
+                query = query.Where(p => p.Name.Contains(model.Name));
+            }
+
+            if (!string.IsNullOrEmpty(model.Slug))
+            {
+                query = query.Where(p => p.Slug == model.Slug);
+            }
+
+            if (model.CategoryId.HasValue)
+            {
+                query = query.Where(p => p.CategoryId == model.CategoryId.Value);
+            }
+
+            if (model.MinPrice.HasValue)
+            {
+                query = query.Where(p => p.Price >= model.MinPrice.Value);
+            }
+
+            if (model.MaxPrice.HasValue)
+            {
+                query = query.Where(p => p.Price <= model.MaxPrice.Value);
+            }
+
+            var totalCount = await query.CountAsync();
+
+            var safeItemsPerPage = model.ItemPerPage < 1 ? 10 : model.ItemPerPage;
+            var totalPages = (int)Math.Ceiling(totalCount / (double)safeItemsPerPage);
+            var safePage = Math.Min(Math.Max(1, model.Page), Math.Max(1, totalPages));
+
+            int skip = (safePage - 1) * safeItemsPerPage;
+
+            var result = await query
+                .Skip(skip)
+                .Take(safeItemsPerPage)
+                .ProjectTo<ProductItemModel>(mapper.ConfigurationProvider)
+                .ToListAsync();
+
+            var allProductsQuery = context.Products.Where(p => !p.IsDeleted);
+
+            decimal minPrice = await allProductsQuery.AnyAsync() ? await allProductsQuery.MinAsync(p => p.Price) : 0;
+            decimal maxPrice = await allProductsQuery.AnyAsync() ? await allProductsQuery.MaxAsync(p => p.Price) : 0;
+
+            return new ProductSearchResult
+            {
+                Items = result,
+                Pagination = new PaginationModel
+                {
+                    TotalCount = totalCount,
+                    TotalPages = totalPages,
+                    ItemsPerPage = safeItemsPerPage,
+                    CurrentPage = safePage
+                },
+                MinPrice = minPrice,
+                MaxPrice = maxPrice
+            };
         }
     }
 }

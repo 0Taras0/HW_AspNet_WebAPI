@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Core.Model.Product;
+using Core.Model.Search.Params;
 using Domain.Entities;
 
 namespace Core.Mappers

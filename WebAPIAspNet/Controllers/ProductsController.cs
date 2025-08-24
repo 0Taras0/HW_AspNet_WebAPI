@@ -44,7 +44,7 @@ namespace WebAPIAspNet.Controllers
 
             if (entity != null)
                 return Ok(model);
-            else 
+            else
                 return BadRequest("Error create product!");
         }
 
@@ -55,7 +55,7 @@ namespace WebAPIAspNet.Controllers
 
             if (entity != null)
                 return Ok(model);
-            else 
+            else
                 return BadRequest("Error edit product!");
         }
 
@@ -89,6 +89,13 @@ namespace WebAPIAspNet.Controllers
         {
             await productService.Delete(id);
             return Ok();
+        }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchProducts([FromQuery] ProductSearchModel model)
+        {
+            var result = await productService.SearchProductsAsync(model);
+            return Ok(result);
         }
     }
 }

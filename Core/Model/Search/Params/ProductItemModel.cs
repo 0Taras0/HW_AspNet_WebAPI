@@ -1,6 +1,7 @@
 ﻿using Core.Model.Category;
+using Core.Model.Product;
 
-namespace Core.Model.Product
+namespace Core.Model.Search.Params
 {
     public class ProductItemModel
     {

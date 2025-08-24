@@ -1,13 +1,14 @@
 ﻿using AutoMapper;
+using Core.Interfaces;
+using Core.Model.Category;
+using Core.Services;
+using Domain.Constants;
+using Domain.Data;
+using Domain.Data.Entities;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Domain.Constants;
-using Domain.Data;
-using Domain.Data.Entities;
-using Core.Interfaces;
-using Core.Model.Category;
 
 namespace Domain.Controllers
 {
@@ -71,6 +72,13 @@ namespace Domain.Controllers
                     invalid = ex.Message
                 });
             }
+        }
+
+        [HttpGet("category-name/{id}")]
+        public async Task<IActionResult> GetCategoryNameById(int id)
+        {
+            var categoryName = await categoryService.GetCategoryNameById(id);
+            return Ok(categoryName);
         }
     }
 }
