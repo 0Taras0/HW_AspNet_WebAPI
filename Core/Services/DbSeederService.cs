@@ -7,17 +7,19 @@ using Domain.Data.Entities;
 using Domain.Data.Entities.Identity;
 using Domain.Entities;
 using Domain.Entities.Delivery;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
 
 namespace Domain
 {
-    public static class DbSeeder
+    public class DbSeederService(IServiceProvider serviceProvider) : IDbSeederService
     {
-        public static async Task SeedData(this WebApplication webApplication)
+        public async Task SeedData()
         {
-            using var scope = webApplication.Services.CreateScope();
+            using var scope = serviceProvider.CreateScope();
             //Цей об'єкт буде верта посилання на конткетс, який зараєстрвоано в Progran.cs
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<RoleEntity>>();

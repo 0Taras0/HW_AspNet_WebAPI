@@ -13,6 +13,8 @@ using Core.Interfaces;
 using Core.Services;
 using Core.Model.Account;
 using Core.Extensions;
+using Quartz;
+using WebAPIAspNet.Jobs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,6 +58,7 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ISMTPService, SMTPService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<INovaPoshtaService, NovaPoshtaService>();
+builder.Services.AddScoped<IDbSeederService, DbSeederService>();
 
 
 //Щоб отримати доступ до HttpContext в сервісах
@@ -126,6 +129,22 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddControllers();
 
+builder.Services.AddQuartz(q =>
+{
+    var jobKey = new JobKey(nameof(DbSeedJob));
+    q.AddJob<DbSeedJob>(opts => opts.WithIdentity(jobKey));
+
+    q.AddTrigger(opts => opts
+        .ForJob(jobKey)
+        .WithIdentity($"{nameof(DbSeedJob)}-trigger")
+        .StartNow());
+});
+builder.Services.AddQuartzHostedService(opt =>
+{
+
+    opt.WaitForJobsToComplete = true;
+});
+
 var app = builder.Build();
 
 app.UseCors("AllowAll");
@@ -150,7 +169,5 @@ app.UseStaticFiles(new StaticFileOptions
     FileProvider = new PhysicalFileProvider(path),
     RequestPath = $"/{dir}"
 });
-
-await app.SeedData();
 
 app.Run();
